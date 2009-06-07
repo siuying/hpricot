@@ -9,6 +9,7 @@ import org.jruby.RubyNumeric;
 import org.jruby.RubyObjectAdapter;
 import org.jruby.RubyString;
 import org.jruby.javasupport.JavaEmbedUtils;
+import org.jruby.javasupport.util.RuntimeHelpers;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.CallbackFactory;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -272,13 +273,19 @@ IRubyObject hpricot_scan(IRubyObject recv, IRubyObject port) {
     }
 
     if (port.respondsTo("read")) {
-      str = port.callMethod(runtime.getCurrentContext(),"read",runtime.newFixnum(space));
-    } else {
+      str = port.callMethod(runtime.getCurrentContext(),"read",runtime.newFixnum(space));  
+    } else {          
       str = ((RubyString)port).substr(nread,space);
     }
 
-    str = str.convertToString();
-    String sss = str.toString();
+    str = str.convertToString(); 
+    String sss = null;
+    if (str instanceof RubyString) {
+      sss = ((RubyString)str).getUnicodeValue(); 
+    } else {
+      sss = str.toString();
+    }
+
     char[] chars = sss.toCharArray();
     System.arraycopy(chars,0,buf,p,chars.length);
 
